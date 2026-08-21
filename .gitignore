@@ -1,0 +1,8 @@
+.env
+*.log
+logs/
+__pycache__/
+.terraform/
+*.tfstate*
+.DS_Store
+*.swp
