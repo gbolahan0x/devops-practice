@@ -1,11 +1,11 @@
-```bash
 #!/bin/bash
 
 ##############################################
 # System Health Check Script
 # Purpose: Monitor system resources
-# Author: [Your Name]
-# Date: $(date +%Y-%m-%d)
+# Author: KLAUD
+# Date: 24/8/26
+# Updated for macOS compatibility
 ##############################################
 
 # Configuration
@@ -24,17 +24,22 @@ log_message() {
 
 # Function to get disk usage
 get_disk_usage() {
-    df -h | grep -E '^/dev/' | awk '{print $1 " - Used: " $3 "/" $2 " (" $5 ")"}'
+    df -h | grep -vE '^Filesystem|^dev|loop' | awk '{printf "%s - Used: %s/%s (%s)\n", $1, $3, $2, $5}'
 }
 
-# Function to get memory usage
+# Function to get memory usage (macOS)
 get_memory_usage() {
-    free -h | grep "^Mem:" | awk '{print "Total: " $2 " | Used: " $3 " | Available: " $7}'
+    local total=$(sysctl -n hw.memsize | awk '{printf "%.1f GB", $1/1073741824}')
+    local pages_active=$(vm_stat | grep "Pages active:" | awk '{print $3}' | sed 's/\.//g')
+    local pages_wired=$(vm_stat | grep "Pages wired:" | awk '{print $3}' | sed 's/\.//g')
+    local used_bytes=$(( (pages_active + pages_wired) * 4096 ))
+    local used=$(awk "BEGIN {printf \"%.1f GB\", $used_bytes/1073741824}")
+    echo "Total: $total | Used: $used"
 }
 
-# Function to get CPU load
+# Function to get CPU load (macOS)
 get_cpu_load() {
-    uptime | awk -F'load average:' '{print $2}'
+    uptime | sed 's/.*load average: //' | awk '{print "1min: " $1 " | 5min: " $2 " | 15min: " $3}'
 }
 
 # Function to get process count
@@ -42,9 +47,9 @@ get_process_count() {
     ps aux | wc -l
 }
 
-# Function to get system uptime
+# Function to get system uptime (macOS compatible)
 get_system_uptime() {
-    uptime -p
+    uptime | sed 's/.*up //' | sed 's/,.*user.*//'
 }
 
 # Main script
@@ -74,5 +79,3 @@ echo "✓ Health check complete. Log saved to: $LOG_FILE"
 echo ""
 echo "Recent entries:"
 tail -15 "$LOG_FILE"
-```
-
