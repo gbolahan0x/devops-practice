@@ -28,7 +28,7 @@ echo ""
 #Count different log levels
 echo "Log Level Summary:"
 echo "-------------------"
-grep -oE "ERROR|WWARNING|INFO|DEBUG" "$LOG_FILE" 2>/dev/null | sort | uniq -c | sort -rn || echo "No Standard log levels found"
+grep -oE "ERROR|WARNING|INFO|DEBUG" "$LOG_FILE" 2>/dev/null | sort | uniq -c | sort -rn || echo "No Standard log levels found"
 
 #show most recent entries
 echo "Most Recent Entries (Last 10):"
@@ -42,12 +42,12 @@ echo "Total log entries: $TOTAL_LINES"
 
 #find lines with error 
 ERROR_COUNT=$(grep -ic "error" "$LOG_FILE")
-echo "Lines containing 'error'': $ERROR_COUNT"
+echo "Lines containing 'error': $ERROR_COUNT"
 echo ""
 
 # Error rate
-if [ $TOTAL_LINES -gt 0 ]; then
-ERROR_RATE=$((ERROR_COUNT * 100 / total_lines))
+if [ "$TOTAL_LINES" -gt 0 ]; then
+ERROR_RATE=$((ERROR_COUNT * 100 / TOTAL_LINES))
 echo "Error rate: $ERROR_RATE%"
 fi
 
