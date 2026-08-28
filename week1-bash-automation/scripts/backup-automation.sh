@@ -8,7 +8,7 @@
 
 # Default Values
 SOURCE_DIR="${1:-.}" # current diir if not specified
-BACKUP_DIR="${2:~/backups}" # ~/backups if not specified
+BACKUP_DIR="${2:-$HOME/backups}" # ~/backups if not specified
 RETENTION_DAYS=7
 MAX_BACKUPS=5
 
