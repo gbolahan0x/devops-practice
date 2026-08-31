@@ -1,0 +1,8 @@
+# System Health Check - runs every 6 hours
+0 */6 * * * /home/gbolahanolaleru/devops-practice/week1-bash-automation/scripts/system-health-check.sh
+
+# Log Monitor - runs daily at 2 AM
+0 2 * * * /home/gbolahanolaleru/devops-practice/week1-bash-automation/scripts/log-monitor.sh /var/log/syslog
+
+# Backup - runs daily at 3 AM
+0 3 * * * /home/gbolahanolaleru/devops-practice/week1-bash-automation/scripts/backup-automation.sh ~/Documents ~/backups
