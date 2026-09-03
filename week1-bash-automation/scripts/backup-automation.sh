@@ -2,8 +2,8 @@
 
 ########################################################
 # Back Up Automtion Script
-# Purpose: Backup directories with roration
-# Usage: ./backupautomation.sh [source_dir] [backup_dir]
+# Purpose: Backup directories with rotation
+# Usage: ./backup-automation.sh [source_dir] [backup_dir]
 ########################################################
 
 # Default Values
@@ -32,31 +32,30 @@ if tar -czf "$BACKUP_FILE" "$SOURCE_DIR" 2>/dev/null; then
 	echo " Size: $SIZE"
 
 	# Log the backup
-	echo "[$(date '+%Y-%m-%d %H:%M:%S')] Backup Created: 
-	$BACKUP_FILE (Size: $SIZE)" >> "$BACKUP_DIR/backup.log"
+	echo "[$(date '+%Y-%m-%d %H:%M:%S')] Backup Created: $BACKUP_FILE (Size: $SIZE)" >> "$BACKUP_DIR/backup.log"
 else
 	echo "✗ Backup failed!"
 	exit 1
 fi
 
 
-# clean up old backups (keep only last 5)
+ Clean up old backups (keep only last 5)
 echo ""
-echo "Cleaning up old backups....."
+echo "Cleaning up old backups..."
 
 BACKUP_COUNT=$(ls -1 "$BACKUP_DIR"/backup-*.tar.gz 2>/dev/null | wc -l)
 
-if [ $BACKUP_COUNT -gt $MAX_BACKUPS ]; then
-	echo "Found $BACKUP_COUNT backups, Keeping last $MAX_BACKUPS ..."
+if [ "$BACKUP_COUNT" -gt "$MAX_BACKUPS" ]; then
+    echo "Found $BACKUP_COUNT backups, keeping last $MAX_BACKUPS..."
 
-	     #Remove oldest backups
-	     ls -1t "$BACKUP_DIR"/backup-*tar.gz 2>/dev/null | tail -n +$((MAX_BACKUPS+1)) | while read old_backup; do
-	     	echo "Removing: $(basename $old_backup)"
-	     	rm -f "$old_backup"
-	     done 
-	 else
-	 	echo "Backup Count: $BACKUP_COUNT/$MAX_BACKUPS (no cleanup needed)"
-	 fi
+    # Remove oldest backups (FIX: consistent indentation)
+    ls -1t "$BACKUP_DIR"/backup-*.tar.gz 2>/dev/null | tail -n +$((MAX_BACKUPS+1)) | while read old_backup; do
+        echo "  Removing: $(basename $old_backup)"
+        rm -f "$old_backup"
+    done
+else
+    echo "Backup count: $BACKUP_COUNT/$MAX_BACKUPS (no cleanup needed)"
+fi
 
-	 echo ""
-	 echo "Backup process completed!"
+echo ""
+echo "Backup process completed!"
