@@ -6,18 +6,18 @@
 #Usage: ./log-monitor.sh      [log_file_path]
 ########################################
 
-#check if log file provided
+# Check if log file provided
 if [ $# -eq 0 ]; then
-echo "usage: $0 <log_file_path>"
-exit 1
+    echo "usage: $0 <log_file_path>"
+    exit 1
 fi
 
 LOG_FILE=$1
 
-#check if file exists
+# Check if file exists
 if [ ! -f "$LOG_FILE" ]; then
-echo "Error: Log file '$LOG_FILE' not found"
-exit 1
+    echo "Error: Log file '$LOG_FILE' not found"
+    exit 1
 fi
 
 echo "====================================="
