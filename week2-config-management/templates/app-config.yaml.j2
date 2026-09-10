@@ -1,0 +1,45 @@
+# Application Configuration
+# Generated from template fpr {{ ENVIRONMENT }}
+
+app:
+   name: MyApp
+   version: 1.0.0
+   environment: {{ ENVIRONMENT }}
+   debug: {{ DEBUG_MODE }}
+
+
+   database:
+     host: {{ DATABASE_HOST }}
+     port: {{ DATABASE_PORT }}
+     user: {{ DATABASE_USER }}
+     password: {{ DATABASE_PASSSWORD }}
+     name: {{ DATABASE_NAME }}
+     timeout: {{ DATABASE_TIMEOUT }}
+     ssl: {{ SSL_ENABLED }}
+     pool_size: 10
+   
+   api:
+    host: {{ API_HOST }}
+    port: {{ API_HOST }}
+    endpoint: {{ API_ENDPOINT }}
+    timeout: {{ API_TIMEOUT }}
+    ssl: {{ SSL_ENABLED }}
+
+   logging:
+    level: {{ LOG_LEVEL }}
+    format: {{ LOG_FORMAT }}
+    output: /var/log/myapp/app.log
+
+   features:
+    caching: {{ ENABLE_CACHING }}
+    profiling: {{ ENABLE_PROFILING }}
+
+   security:
+    ssl_enabled: {{ SSL_ENABLED }}
+    cors_origin: {{ CORS_ALLOWED_ORIGINS }}
+    
+
+  
+
+
+   
