@@ -18,8 +18,7 @@ LOGS_DIR="$PROJECT_DIR/logs"
 LOG_FILE="$PROJECT_DIR/config-changes.log"
 
 # Create directories if they don't exist
-mkdir -p "GENERATED_DIR" "$LOGS_DIR"
-
+mkdir -p "$GENERATED_DIR" "$LOGS_DIR"
 # Color output
 GREEN='\033[0;32m'
 RED='\033[0;31m'
