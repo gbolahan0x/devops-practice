@@ -1,3 +1,5 @@
+#!/bin/bash
+
 ######################################################
 # Configuration Generator
 # Purpose: Generate configs from templates
