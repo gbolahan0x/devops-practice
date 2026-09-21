@@ -1,0 +1,9 @@
+services:
+  config-tools:
+    build: .
+    profiles: ["tools"]
+    volumes:
+      - ./environments:/workspace/environments:ro
+      - ./generated:/workspace/generated
+      - ./logs:/workspace/logs
+    entrypoint: ["bash"]

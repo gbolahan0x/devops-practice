@@ -1,0 +1,7 @@
+# Environment files can contain credentials and are mounted only when the job runs.
+environments/*.env
+
+# Generated configuration and logs are runtime output, not image content.
+generated/
+logs/
+config-changes.log

@@ -40,15 +40,15 @@ validate_config() {
 	fi
 
 	# Check 2: No unresolved variables
-	if grep -Eq '{{[[:space:]]*[^}]+[[:space:]]*}}' "$config_file"; then
+	if grep -Eq '\{\{[[:space:]]*[^}]+[[:space:]]*\}\}' "$config_file"; then
 		echo -e "${RED}✗ Unresolved variables found:${NC}"
-		grep -E '{{[[:space:]]*[^}]+[[:space:]]*}}' "$config_file" | sed 's/^/  /'
+		grep -E '\{\{[[:space:]]*[^}]+[[:space:]]*\}\}' "$config_file" | sed 's/^/  /'
 		((errors += 1))
-	else
-		echo -e "${GREEN}✓ No unresolved variables${NC}"
-	fi
+		else
+			echo -e "${GREEN}✓ No unresolved variables${NC}"
+		fi
 
-	#Check 3: Required fields present
+    # Check 3: Required fields present
 	local required_fields=("database:" "api:" "logging:")
 	for field in "${required_fields[@]}"; do
 		if grep -q "$field" "$config_file"; then
@@ -61,11 +61,11 @@ validate_config() {
 
 	# Check 4: Valid YAML Structure
 	if command -v yamllint &> /dev/null; then
-		if yamllint -c relaxed "$config_file" > /dev/null 2>&1; then
+		if yamllint -d relaxed "$config_file" > /dev/null 2>&1; then
 			echo -e "${GREEN}✓ Valid YAML structure${NC}"
         else
             echo -e "${RED}✗ Invalid YAML structure${NC}"
-            yamllint -c relaxed "$config_file" | head -5
+            yamllint -d relaxed "$config_file" | head -5
             ((errors += 1))
         fi
     else
