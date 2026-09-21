@@ -9,7 +9,8 @@
 set -euo pipefail
 
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SCRIPT_DIR="$PROJECT_DIR/Scripts"
+SCRIPT_DIR="$PROJECT_DIR/scripts"
+GENERATED_DIR="$PROJECT_DIR/generated"
 ENVIRONMENTS=("dev" "staging" "prod")
 
 echo "========================================"
@@ -23,11 +24,11 @@ for env in "${ENVIRONMENTS[@]}"; do
 	echo "Testing: $env"
 	echo "---"
 
-	if "$SCRIPT_DIR/config-generator.sh" "$env"; then
-		echo "✓ Config generated"
+	if "$SCRIPT_DIR/config-generator.sh" "$env" && "$SCRIPT_DIR/validate-config.sh" "$GENERATED_DIR/app-config-${env}.yaml"; then
+		echo "✓ Configuration generated and validated"
 	else
-		echo "✗ Config valiadation failed"
-		((errors++))
+		echo "✗ Configuration generation or validation failed"
+		((errors += 1))
 	fi
 
 	echo ""

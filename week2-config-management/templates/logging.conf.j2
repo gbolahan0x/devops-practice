@@ -1,0 +1,20 @@
+# Logging configuration
+# Environment: {{ ENVIRONMENT }}
+
+[general]
+level = {{ LOG_LEVEL }}
+format = {{ LOG_FORMAT }}
+
+[output]
+file = /var/log/myapp/{{ ENVIRONMENT }}.log
+max_size = 100M
+max_backups = 5
+compress = true 
+
+[database]
+level = {{ LOG_LEVEL }}
+file = /var/log/myapp/database-{{ ENVIRONMENT }}.log
+
+[api]
+level = {{ LOG_LEVEL }}
+file = /var/log/myapp-{{ ENVIRONMENT }}.log

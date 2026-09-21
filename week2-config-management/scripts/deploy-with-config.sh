@@ -8,6 +8,13 @@
 
 set -euo pipefail
 
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SCRIPT_DIR="$PROJECT_DIR/scripts"
+GENERATED_DIR="$PROJECT_DIR/generated"
+LOGS_DIR="$PROJECT_DIR/logs"
+DEPLOY_LOG="$LOGS_DIR/deployment.log"
+mkdir -p "$LOGS_DIR"
+
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 YELLOW='\033[1;33m'
@@ -35,7 +42,7 @@ deploy(){
 	fi
 
 	#Step 2: Validate configs
-	echo -e "\n${YELLOW}Step 2: Validatin configuration...${NC}"
+	echo -e "\n${YELLOW}Step 2: Validating configuration...${NC}"
 	local config_file="$GENERATED_DIR/app-config-${environment}.yaml"
 
 	if [ ! -f "$config_file" ]; then
@@ -56,10 +63,10 @@ deploy(){
 	#cp "$config_file" /etc/myapp/config.yaml #Real deployment
 	echo "  - Starting application..."
 	sleep 1
-	echo -e "   ${GREEN}✓ Apllication running${NC}"
+	echo -e "   ${GREEN}✓ Application running${NC}"
 
 	#Step 4: verify
-	echo -e "\n${YELLOW}Step 4: Verifyng deployment...${NC}"
+	echo -e "\n${YELLOW}Step 4: Verifying deployment...${NC}"
 	echo -e " ${GREEN}✓ All health checks passed${NC}"
 
 	#Step 5: Log
@@ -72,7 +79,7 @@ deploy(){
 }
 
 #Usage
-if [ $# -eq 0 ]; then
+if [ $# -ne 1 ]; then
 	echo "Usage: $0 [dev|staging|prod]"
 	exit 1
 fi

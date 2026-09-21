@@ -27,23 +27,23 @@ validate_config() {
 		error_exit "Config file not found: $config_file"
 	fi
 
-	echo -e "${YELLOW}Validating: $config_files${NC}\n"
+	echo -e "${YELLOW}Validating: $config_file${NC}\n"
 
 	local errors=0
 
 	# Check 1: File is readable
 	if [ ! -r "$config_file" ]; then
 		echo -e "${RED}✗ File is not readable${NC}"
-		((errors++))
+		((errors += 1))
 	else
 		echo -e "${GREEN}✓ File is readable${NC}"
 	fi
 
 	# Check 2: No unresolved variables
-	if grep -q "{{ .* }}" "$config_file"; then
+	if grep -Eq '{{[[:space:]]*[^}]+[[:space:]]*}}' "$config_file"; then
 		echo -e "${RED}✗ Unresolved variables found:${NC}"
-		grep "{{ .* }}" "$config_file" | sed 's/ˆ/ /'
-		((errors++))
+		grep -E '{{[[:space:]]*[^}]+[[:space:]]*}}' "$config_file" | sed 's/^/  /'
+		((errors += 1))
 	else
 		echo -e "${GREEN}✓ No unresolved variables${NC}"
 	fi
@@ -55,7 +55,7 @@ validate_config() {
 			echo -e "${GREEN}✓ Found required field: $field${NC}"
 		else
 			echo -e "${RED}✗ Missing required field: $field${NC}"
-			((errors++))
+			((errors += 1))
 		fi
 	done
 
@@ -66,7 +66,7 @@ validate_config() {
         else
             echo -e "${RED}✗ Invalid YAML structure${NC}"
             yamllint -c relaxed "$config_file" | head -5
-            ((errors++))
+            ((errors += 1))
         fi
     else
     	echo -e "${YELLOW}⚠ yamllint not installed (skipping YAML validation)${NC}"
@@ -90,12 +90,10 @@ validate_config() {
 }
 
 # Usage check
-if [ $# -eq 0 ]; then
+if [ $# -ne 1 ]; then
     echo "Usage: $0 [config_file]"
     exit 1
 fi
 
 # Execute
 validate_config "$1"
-
-}

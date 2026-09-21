@@ -1,5 +1,6 @@
 .env
 *.log
+week2-config-management/generated/
 logs/
 __pycache__/
 .terraform/

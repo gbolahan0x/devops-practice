@@ -37,9 +37,69 @@ error_exit() {
     exit 1
 }
 
+validate_environment() {
+    case "$1" in
+        dev|staging|prod) ;;
+        *) error_exit "Unsupported environment: $1. Use dev, staging, or prod." ;;
+    esac
+}
+
+load_environment() {
+    local env_file=$1
+    local line key value line_number=0
+
+    while IFS= read -r line || [ -n "$line" ]; do
+        ((line_number += 1))
+        line=${line%$'\r'}
+
+        # Allow blank lines, comments, and the optional bash shebang.
+        if [[ -z ${line//[[:space:]]/} || $line =~ ^[[:space:]]*# ]]; then
+            continue
+        fi
+
+        if [[ ! $line =~ ^([A-Z][A-Z0-9_]*)=(.*)$ ]]; then
+            error_exit "Invalid environment entry in $env_file at line $line_number"
+        fi
+
+        key=${BASH_REMATCH[1]}
+        value=${BASH_REMATCH[2]}
+        printf -v "$key" '%s' "$value"
+    done < "$env_file"
+}
+
+escape_sed_replacement() {
+    local value=$1
+    value=${value//\\/\\\\}
+    value=${value//&/\\&}
+    value=${value//|/\\|}
+    printf '%s' "$value"
+}
+
+require_variables() {
+    local variable
+    local required_variables=(
+        DATABASE_HOST DATABASE_PORT DATABASE_USER DATABASE_PASSWORD DATABASE_NAME
+        API_HOST API_PORT API_ENDPOINT LOG_LEVEL LOG_FORMAT DEBUG_MODE
+        ENABLE_CACHING ENABLE_PROFILING SSL_ENABLED CORS_ALLOWED_ORIGINS
+        DATABASE_TIMEOUT API_TIMEOUT
+    )
+
+    for variable in "${required_variables[@]}"; do
+        if [[ -z ${!variable:-} ]]; then
+            error_exit "Required variable is missing or empty: $variable"
+        fi
+    done
+}
+
 # Main function
 generate_config() {
     local environment=$1
+    local template template_name stem extension output_file variable value
+    local templates=()
+    local generated_files=()
+    local sed_args=()
+
+    validate_environment "$environment"
     
     echo -e "${YELLOW}Generating config for environment: $environment${NC}"
     
@@ -51,64 +111,57 @@ generate_config() {
     
     echo -e "${GREEN}✓ Found environment file: $env_file${NC}"
     
-    # 2. Load environment variables
-    export ENVIRONMENT="$environment"
-    # shellcheck source=/dev/null
-    source "$env_file"
+    # 2. Load simple KEY=value entries without executing the environment file.
+    ENVIRONMENT="$environment"
+    load_environment "$env_file"
+    require_variables
     
     log_change "Loading environment: $environment"
     
     # 3. Generate configs from templates
     echo -e "\n${YELLOW}Generating from templates...${NC}"
     
-    # Find all template files
-    for template in "$TEMPLATES_DIR"/*.j2; do
-        if [ ! -f "$template" ]; then
-            echo "No templates found"
-            continue
+    templates=("$TEMPLATES_DIR"/*.j2)
+    if [ ! -e "${templates[0]}" ]; then
+        error_exit "No templates found in $TEMPLATES_DIR"
+    fi
+
+    for template in "${templates[@]}"; do
+        template_name=$(basename "$template" .j2)
+        if [[ "$template_name" == *.* ]]; then
+            stem=${template_name%.*}
+            extension=${template_name##*.}
+            output_file="$GENERATED_DIR/${stem}-${environment}.${extension}"
+        else
+            output_file="$GENERATED_DIR/${template_name}-${environment}"
         fi
-        
-        local template_name=$(basename "$template" .j2)
-        local output_file="$GENERATED_DIR/${template_name}-${environment}.yaml"
         
         echo -n "  Processing $template_name... "
         
-        # Use sed to replace all {{ VAR }} with values
-        sed \
-            -e "s|{{ ENVIRONMENT }}|$ENVIRONMENT|g" \
-            -e "s|{{ DATABASE_HOST }}|$DATABASE_HOST|g" \
-            -e "s|{{ DATABASE_PORT }}|$DATABASE_PORT|g" \
-            -e "s|{{ DATABASE_USER }}|$DATABASE_USER|g" \
-            -e "s|{{ DATABASE_PASSWORD }}|$DATABASE_PASSWORD|g" \
-            -e "s|{{ DATABASE_NAME }}|$DATABASE_NAME|g" \
-            -e "s|{{ API_HOST }}|$API_HOST|g" \
-            -e "s|{{ API_PORT }}|$API_PORT|g" \
-            -e "s|{{ API_ENDPOINT }}|$API_ENDPOINT|g" \
-            -e "s|{{ LOG_LEVEL }}|$LOG_LEVEL|g" \
-            -e "s|{{ LOG_FORMAT }}|$LOG_FORMAT|g" \
-            -e "s|{{ DEBUG_MODE }}|$DEBUG_MODE|g" \
-            -e "s|{{ ENABLE_CACHING }}|$ENABLE_CACHING|g" \
-            -e "s|{{ ENABLE_PROFILING }}|$ENABLE_PROFILING|g" \
-            -e "s|{{ SSL_ENABLED }}|$SSL_ENABLED|g" \
-            -e "s|{{ CORS_ALLOWED_ORIGINS }}|$CORS_ALLOWED_ORIGINS|g" \
-            -e "s|{{ DATABASE_TIMEOUT }}|$DATABASE_TIMEOUT|g" \
-            -e "s|{{ API_TIMEOUT }}|$API_TIMEOUT|g" \
-            "$template" > "$output_file"
-        
+        # Escape values before using them in a sed replacement expression.
+        sed_args=()
+        for variable in ENVIRONMENT DATABASE_HOST DATABASE_PORT DATABASE_USER DATABASE_PASSWORD DATABASE_NAME API_HOST API_PORT API_ENDPOINT LOG_LEVEL LOG_FORMAT DEBUG_MODE ENABLE_CACHING ENABLE_PROFILING SSL_ENABLED CORS_ALLOWED_ORIGINS DATABASE_TIMEOUT API_TIMEOUT; do
+            value=$(escape_sed_replacement "${!variable}")
+            sed_args+=( -e "s|{{ $variable }}|$value|g" )
+        done
+
+        sed "${sed_args[@]}" "$template" > "$output_file"
+
         echo -e "${GREEN}✓${NC}"
+        generated_files+=("$output_file")
         log_change "Generated: $output_file"
     done
     
     # 4. Summary
     echo -e "\n${GREEN}Configuration generation complete!${NC}"
     echo -e "\nGenerated files:"
-    ls -lh "$GENERATED_DIR"/*"$environment"* 2>/dev/null || echo "  (none found)"
+    ls -lh "${generated_files[@]}"
     
     log_change "Configuration generation completed successfully for $environment"
 }
 
 # Usage check
-if [ $# -eq 0 ]; then
+if [ $# -ne 1 ]; then
     echo "Usage: $0 [dev|staging|prod]"
     echo ""
     echo "Available environments:"
