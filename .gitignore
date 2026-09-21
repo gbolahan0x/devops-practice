@@ -1,4 +1,5 @@
 .env
+node_modules/
 *.log
 week2-config-management/generated/
 logs/

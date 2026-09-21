@@ -1,6 +1,7 @@
 services:
   app:
     build: ./app
+    restart: unless-stopped
     ports:
       - "3001:3000"
     environment:
@@ -10,12 +11,19 @@ services:
       DB_NAME: ${POSTGRES_DB}
       DB_USER: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/health').then(response => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
     depends_on:
       db:
         condition: service_healthy
 
   db:
     image: postgres:16-alpine
+    restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
