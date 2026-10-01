@@ -1,9 +1,9 @@
 .terraform/
 *.tfstate
 *.tfstate.*
-crash.log
-crash.*.log
 *.tfvars
 !terraform.tfvars.example
 *.tfplan
 backend.hcl
+crash.log
+crash.*.log
