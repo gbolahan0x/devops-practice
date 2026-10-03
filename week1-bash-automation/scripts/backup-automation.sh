@@ -39,7 +39,7 @@ else
 fi
 
 
- Clean up old backups (keep only last 5)
+# Clean up old backups (keep only last 5)
 echo ""
 echo "Cleaning up old backups..."
 
