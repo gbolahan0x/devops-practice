@@ -39,6 +39,7 @@ find "$DIRECTORY" -maxdepth 1 -type f | while read file; do
             ;;
     esac
 
-    echo "MOVED SUCCESFULLY WITH KLAUD"
+    echo "MOVED SUCCESFULLY"
+done
     
  
