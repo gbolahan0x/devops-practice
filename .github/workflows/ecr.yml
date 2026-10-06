@@ -1,0 +1,123 @@
+name: Deliver Image to Amazon ECR
+
+on:
+  workflow_run:
+    workflows:
+      - DevOps CI
+    types:
+      - completed
+    branches:
+      - main
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: ecr-delivery-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deliver:
+    name: Build and push immutable image
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+
+    steps:
+      - name: Check out the tested revision
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Obtain temporary AWS credentials through OIDC
+        uses: aws-actions/configure-aws-credentials@v6.3.0
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          role-session-name: week6-${{ github.run_id }}
+          aws-region: ${{ vars.AWS_REGION }}
+          allowed-account-ids: ${{ vars.AWS_ACCOUNT_ID }}
+          role-duration-seconds: 900
+          mask-aws-account-id: true
+          unset-current-credentials: true
+
+      - name: Verify AWS identity
+        run: aws sts get-caller-identity
+
+      - name: Determine image tag and check for existing image
+        id: image
+        shell: bash
+        run: |
+          IMAGE_TAG="${{ github.event.workflow_run.head_sha || github.sha }}"
+
+          echo "tag=$IMAGE_TAG" >> "$GITHUB_OUTPUT"
+
+          if aws ecr describe-images \
+            --repository-name "$ECR_REPOSITORY" \
+            --image-ids imageTag="$IMAGE_TAG" \
+            --region "$AWS_REGION" \
+            > /dev/null 2>&1
+          then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Image tag already exists; the immutable image will not be overwritten."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "Image tag does not exist and will be created."
+          fi
+
+      - name: Authenticate Docker to Amazon ECR
+        if: steps.image.outputs.exists != 'true'
+        shell: bash
+        run: |
+          AWS_ACCOUNT_ID="$(aws sts get-caller-identity \
+            --query Account \
+            --output text)"
+
+          ECR_REGISTRY="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+
+          aws ecr get-login-password \
+            --region "$AWS_REGION" |
+            docker login \
+              --username AWS \
+              --password-stdin "$ECR_REGISTRY"
+
+      - name: Build and push application image
+        if: steps.image.outputs.exists != 'true'
+        shell: bash
+        run: |
+          AWS_ACCOUNT_ID="$(aws sts get-caller-identity \
+            --query Account \
+            --output text)"
+
+          ECR_REGISTRY="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+          IMAGE_TAG="${{ steps.image.outputs.tag }}"
+          IMAGE_URI="${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}"
+
+          docker build \
+            --pull \
+            --tag "$IMAGE_URI" \
+            week3-docker-compose/app
+
+          docker push "$IMAGE_URI"
+
+          echo "Pushed image: ${ECR_REPOSITORY}:${IMAGE_TAG}"
+
+      - name: Verify image in Amazon ECR
+        shell: bash
+        run: |
+          aws ecr describe-images \
+            --repository-name "$ECR_REPOSITORY" \
+            --image-ids imageTag="${{ steps.image.outputs.tag }}" \
+            --region "$AWS_REGION" \
+            --query 'imageDetails[0].{Digest:imageDigest,Tags:imageTags,PushedAt:imagePushedAt}' \
+            --output table

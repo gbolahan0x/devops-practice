@@ -1,0 +1,11 @@
+aws_account_id     = "PASTE_YOUR_12_DIGIT_AWS_ACCOUNT_ID"
+aws_region         = "eu-west-1"
+
+github_owner         = "gbolahan0x"
+github_owner_id      = "PASTE_NUMERIC_GITHUB_OWNER_ID"
+github_repository    = "devops-practice"
+github_repository_id = "PASTE_NUMERIC_GITHUB_REPOSITORY_ID"
+github_branch        = "main"
+
+ecr_repository_name         = "devops-zero-to-hero/week3-app"
+create_github_oidc_provider = true
