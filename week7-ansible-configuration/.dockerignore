@@ -1,0 +1,5 @@
+.git
+.gitignore
+keys/*
+!keys/ansible.pub
+*.retry

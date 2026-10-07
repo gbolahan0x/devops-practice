@@ -1,0 +1,19 @@
+---
+- name: Ensure Nginx is installed
+  ansible.builtin.apt:
+    name: "{{ web_service_name }}"
+    state: present
+
+- name: Render the server-specific homepage
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: "{{ web_document_root }}/index.html"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart Nginx
+
+- name: Ensure Nginx is running
+  ansible.builtin.service:
+    name: "{{ web_service_name }}"
+    state: started

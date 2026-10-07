@@ -1,0 +1,12 @@
+---
+project_name: devops-zero-to-hero
+environment_name: development
+
+common_packages:
+  - ca-certificates
+  - curl
+  - jq
+  - vim-tiny
+
+web_service_name: nginx
+web_document_root: /var/www/html

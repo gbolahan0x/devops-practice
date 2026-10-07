@@ -1,0 +1,55 @@
+name: week7-ansible-lab
+
+services:
+  node1:
+    build:
+      context: .
+      dockerfile: docker/managed-node/Dockerfile
+    image: week7-managed-node:local
+    container_name: week7-node1
+    hostname: node1
+    init: true
+    ports:
+      - "8081:80"
+    networks:
+      - ansible_lab
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -x sshd > /dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  node2:
+    image: week7-managed-node:local
+    container_name: week7-node2
+    hostname: node2
+    init: true
+    ports:
+      - "8082:80"
+    networks:
+      - ansible_lab
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -x sshd > /dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  controller:
+    build:
+      context: .
+      dockerfile: docker/controller/Dockerfile
+    image: week7-ansible-controller:local
+    working_dir: /workspace
+    environment:
+      ANSIBLE_CONFIG: /workspace/ansible.cfg
+    volumes:
+      - .:/workspace
+      - ./keys/ansible:/root/.ssh/id_ed25519:ro
+    networks:
+      - ansible_lab
+    profiles:
+      - tools
+
+networks:
+  ansible_lab:
+    name: week7-ansible-network

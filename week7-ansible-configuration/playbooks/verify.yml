@@ -1,0 +1,22 @@
+---
+- name: Verify the Week 7 web servers
+  hosts: webservers
+  gather_facts: false
+
+  tasks:
+    - name: Request the local Nginx homepage
+      ansible.builtin.uri:
+        url: http://127.0.0.1
+        return_content: true
+        status_code: 200
+      register: homepage
+      changed_when: false
+
+    - name: Confirm the homepage contains this server's identity
+      ansible.builtin.assert:
+        that:
+          - inventory_hostname in homepage.content
+          - server_role in homepage.content
+          - welcome_message in homepage.content
+        success_msg: "{{ inventory_hostname }} returned the expected homepage."
+        fail_msg: "{{ inventory_hostname }} returned unexpected content."

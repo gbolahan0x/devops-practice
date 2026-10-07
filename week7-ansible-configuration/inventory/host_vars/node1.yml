@@ -1,0 +1,3 @@
+---
+server_role: primary
+welcome_message: "Welcome from the primary Ansible-managed server By Klaud."
