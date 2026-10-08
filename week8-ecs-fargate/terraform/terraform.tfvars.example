@@ -1,0 +1,6 @@
+aws_account_id = "PASTE_YOUR_12_DIGIT_AWS_ACCOUNT_ID"
+aws_region     = "eu-west-1"
+
+ecr_repository_name = "devops-zero-to-hero/week3-app"
+image_tag            = "PASTE_AN_EXISTING_ECR_IMAGE_TAG"
+allowed_cidr         = "PASTE_YOUR_PUBLIC_IP/32"

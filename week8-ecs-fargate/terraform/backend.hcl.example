@@ -1,0 +1,5 @@
+bucket       = "REPLACE_WITH_WEEK4D_STATE_BUCKET_NAME"
+key          = "week8/ecs-fargate/terraform.tfstate"
+region       = "eu-west-1"
+encrypt      = true
+use_lockfile = true
