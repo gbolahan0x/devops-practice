@@ -1,13 +1,37 @@
 # DevOps Practice
 
-Learning DevOps through Infrastructure Automation projects.
-
-**September 2026 Goal**: Build 4 practical projects while learning.
+A practical DevOps engineering roadmap covering automation, containers,
+Infrastructure as Code, CI/CD, AWS, configuration management and cloud
+deployments.
 
 ## Projects
-- Week 1: Bash Automation (Sep 1-7)
-- Week 2: Configuration Management (Sep 8-14)
-- Week 3: Docker & Containerization (Sep 15-21)
-- Week 4: Infrastructure as Code (Sep 22-30)
 
-[Progress](PROGRESS.md)
+- [Week 1 — Bash Automation](week1-bash-automation)
+- [Week 2 — Configuration Management](week2-config-management)
+- [Week 3 — Docker and Containerization](week3-docker-compose)
+- [Week 4 — Infrastructure as Code with Terraform](week4-iac-basics)
+- [Week 5 — Continuous Integration with GitHub Actions](week5-cicd)
+- [Week 6 — Secure GitHub OIDC and Amazon ECR Delivery](week6-aws-oidc-ecr)
+- [Week 7 — Configuration Management with Ansible](week7-ansible-configuration)
+- [Week 8 — Amazon ECS Fargate Deployment](week8-ecs-fargate)
+
+## Current Delivery Journey
+
+```text
+Bash automation
+      ↓
+Configuration management
+      ↓
+Docker and Docker Compose
+      ↓
+Terraform
+      ↓
+GitHub Actions CI
+      ↓
+GitHub OIDC and Amazon ECR
+      ↓
+Ansible
+      ↓
+Amazon ECS Fargate
+
+

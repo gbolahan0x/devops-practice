@@ -8,3 +8,5 @@ __pycache__/
 *.tfstate*
 .DS_Store
 *.swp
+# Terraform generated plan files
+*.tfplan
