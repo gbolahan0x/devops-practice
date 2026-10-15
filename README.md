@@ -33,5 +33,6 @@ GitHub OIDC and Amazon ECR
 Ansible
       ↓
 Amazon ECS Fargate
-
+      ↓
+Local Kubernetes with kind
 

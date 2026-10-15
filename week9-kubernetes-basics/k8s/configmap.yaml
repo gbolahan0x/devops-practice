@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: week9-app-config
+  namespace: devops-lab
+  labels:
+    app.kubernetes.io/name: week9-app
+    app.kubernetes.io/part-of: devops-zero-to-hero
+data:
+  NODE_ENV: kubernetes
+  PORT: "3000"
