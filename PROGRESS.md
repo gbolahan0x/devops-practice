@@ -14,7 +14,8 @@
 - Week 7 — Configuration management with Ansible
 - Week 8 — Amazon ECS Fargate deployment
 - Week 9 — Kubernetes fundamentals with kind
+- Week 10 — Managed Kubernetes with Amazon EKS
 
 ## Next
 
-- Week 10 — Managed Kubernetes with Amazon EKS
+- Week 11 — Helm packaging and Kubernetes release management

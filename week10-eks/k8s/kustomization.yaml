@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: devops-lab
+
+resources:
+  - namespace.yaml
+  - configmap.yaml
+  - deployment.yaml
+  - service.yaml
+
+images:
+  - name: week10-app
+    newName: 446476243666.dkr.ecr.eu-west-1.amazonaws.com/devops-zero-to-hero/week3-app
+    newTag: 03031221ccfcb71b97ef8fa13857f06db9e6baff

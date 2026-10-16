@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: week10-app-config
+data:
+  NODE_ENV: kubernetes
+  PORT: "3000"
+

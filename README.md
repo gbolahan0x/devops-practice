@@ -14,6 +14,8 @@ deployments.
 - [Week 6 — Secure GitHub OIDC and Amazon ECR Delivery](week6-aws-oidc-ecr)
 - [Week 7 — Configuration Management with Ansible](week7-ansible-configuration)
 - [Week 8 — Amazon ECS Fargate Deployment](week8-ecs-fargate)
+- [Week 9 — Kubernetes Fundamentals with kind](week9-kubernetes-basics)
+- [Week 10 — Managed Kubernetes with Amazon EKS](week10-eks)
 
 ## Current Delivery Journey
 
@@ -35,4 +37,8 @@ Ansible
 Amazon ECS Fargate
       ↓
 Local Kubernetes with kind
+      ↓
+Managed Kubernetes with Amazon EKS
+```
 
+See [PROGRESS.md](PROGRESS.md) for the roadmap status.
